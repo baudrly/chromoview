@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hi-C Polymer Simulation</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/png" href="favicon.ico">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-content">
+            <div id="chromosome-canvas-container" class="canvas-container">
+                <div class="panel-title">Chromosome Dynamics</div>
+            </div>
+            <div class="right-panel-stack">
+                <div id="hic-canvas-container" class="canvas-container hic-map-subpanel">
+                    <div class="panel-title">Hi-C Contact Map</div>
+                </div>
+                <div id="ps-plot-container" class="canvas-container ps-plot-subpanel">
+                    <div class="panel-title">P(s) vs. Genomic Distance (s) [log-log]</div>
+                </div>
+            </div>
+        </div>
+        <div class="controls-container">
+            <h2>Configuration</h2>
+            
+            <div class="control-group">
+                <label for="numChromosomes">Number of Chromosomes:</label>
+                <input type="number" id="numChromosomes" value="3" min="1" max="20">
+            </div>
+            <div class="control-group">
+                <label for="numMonomers">Monomers per Chromosome (Map Size):</label>
+                <input type="number" id="numMonomers" value="50" min="10" max="300" step="10">
+            </div>
+            <div class="control-group">
+                <label for="simulationSpeed">Simulation Steps/sec:</label>
+                <input type="number" id="simulationSpeed" value="30" min="1" max="120">
+            </div>
+
+            <h3>Physics Parameters</h3>
+            <div class="control-group">
+                <label for="bondLength">Bond Length:</label>
+                <input type="number" id="bondLength" value="8" min="1" max="20" step="0.5">
+            </div>
+            <div class="control-group">
+                <label for="endPullStrength">End Pull Strength:</label>
+                <input type="range" id="endPullStrength" min="0" max="0.1" value="0.02" step="0.001">
+                <span id="endPullStrengthValue">0.020</span>
+            </div>
+             <div class="control-group">
+                <label for="endRandomStep">End Random Walk Step:</label>
+                <input type="range" id="endRandomStep" min="0" max="5" value="1" step="0.1">
+                <span id="endRandomStepValue">1.0</span>
+            </div>
+            <div class="control-group">
+                <label for="contactRadius">Contact Radius (for Hi-C):</label>
+                <input type="number" id="contactRadius" value="12" min="1" max="50" step="0.5">
+            </div>
+             <div class="control-group">
+                <label for="hicDecayRate">Hi-C Map Decay (0.9-1.0):</label>
+                <input type="range" id="hicDecayRate" min="0.9" max="1.0" value="0.99" step="0.001">
+                <span id="hicDecayRateValue">0.990</span>
+            </div>
+            <div class="control-group">
+                <label for="monomerSelfRepulsion">Monomer Self-Repulsion Strength:</label>
+                <input type="range" id="monomerSelfRepulsion" min="0" max="1.0" value="0.1" step="0.01">
+                <span id="monomerSelfRepulsionValue">0.10</span>
+            </div>
+             <div class="control-group">
+                <label for="obstacleRepulsion">Obstacle Repulsion Strength:</label>
+                <input type="range" id="obstacleRepulsion" min="0" max="2.0" value="0.5" step="0.01">
+                <span id="obstacleRepulsionValue">0.50</span>
+            </div>
+            <div class="control-group">
+                <label for="extruderForceStrength">Loop Extruder Force Strength:</label>
+                <input type="range" id="extruderForceStrength" min="0" max="2.0" value="0.5" step="0.01">
+                <span id="extruderForceStrengthValue">0.50</span>
+            </div>
+
+
+            <h3>Controls</h3>
+            <button id="playPauseButton"><span class="icon">❚❚</span> Pause</button>
+            <button id="resetButton"><span class="icon">↺</span> Reset Simulation</button>
+
+            <h3>Monomer Anchors (Spatial Fix)</h3>
+            <div class="control-group">
+                <label for="anchorChrIdx">Chromosome Index (0-based):</label>
+                <input type="number" id="anchorChrIdx" value="0" min="0">
+            </div>
+            <div class="control-group">
+                <label for="anchorMonomerIdx">Monomer Index (0 to M-1):</label>
+                <input type="number" id="anchorMonomerIdx" value="0" min="0">
+            </div>
+            <div class="control-group">
+                <label for="anchorType">Anchor Position:</label>
+                <select id="anchorType">
+                    <option value="fix_to_center">Fix to Center of Dynamics Canvas</option>
+                    <option value="fix_to_click">Fix to Click (Click Dynamics Canvas)</option>
+                </select>
+            </div>
+            <button id="addAnchorButton"><span class="icon">⊕</span> Add Spatial Anchor</button>
+            <button id="clearAnchorsButton"><span class="icon">🗑️</span> Clear Anchors</button>
+            <div id="anchorList" class="list-display">
+                <h4>Active Spatial Anchors:</h4>
+                <ul></ul>
+            </div>
+
+            <h3>Loop Extruders</h3>
+            <div class="control-group">
+                <label for="extruderChrIdx">Chromosome Index (0-based):</label>
+                <input type="number" id="extruderChrIdx" value="0" min="0">
+            </div>
+            <div class="control-group">
+                <label for="extruderType">Extruder Type:</label>
+                <select id="extruderType">
+                    <option value="static">Static Loop</option>
+                    <option value="one_sided_start">One-Sided (from Start)</option>
+                    <option value="one_sided_end">One-Sided (from End)</option>
+                    <option value="both_sided_center">Both-Sided (from Center)</option>
+                </select>
+            </div>
+            <div id="extruderStaticIndicesContainer" class="control-group hidden">
+                <label>Static Loop Monomer Indices (0 to M-1):</label>
+                <div class="extruder-static-indices">
+                    <div>
+                        <label for="extruderStaticMonomer1" style="font-size:0.8em">Monomer 1:</label>
+                        <input type="number" id="extruderStaticMonomer1" value="10" min="0">
+                    </div>
+                     <div>
+                        <label for="extruderStaticMonomer2" style="font-size:0.8em">Monomer 2:</label>
+                        <input type="number" id="extruderStaticMonomer2" value="40" min="0">
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="extruderSpeed">Extrusion Speed (Monomers/sec, 0 for Static):</label>
+                <input type="number" id="extruderSpeed" value="5" min="0" step="0.5">
+            </div>
+            <div class="control-group">
+                <label for="extruderMaxSize">Max Loop Size (Genomic Distance, M-1 max):</label>
+                <input type="number" id="extruderMaxSize" value="40" min="1">
+            </div>
+            <button id="addExtruderButton"><span class="icon">⊕</span> Add Extruder</button>
+            <button id="clearExtrudersButton" class="hidden"><span class="icon">🗑️</span> Clear Extruders</button> <!-- Initially hidden, show if list not empty -->
+            <div id="extruderList" class="list-display">
+                <h4>Active Loop Extruders:</h4>
+                <ul></ul>
+            </div>
+
+
+            <h3>Circular Obstacles</h3>
+            <div class="control-group">
+                <label for="obstacleRadius">Obstacle Radius:</label>
+                <input type="number" id="obstacleRadius" value="20" min="5" max="100">
+            </div>
+            <p class="instruction">Click on Dynamics Canvas to set obstacle center, then click "Add Obstacle".</p>
+            <button id="addObstacleButton"><span class="icon">⊕</span> Add Obstacle (after click)</button>
+            <button id="clearObstaclesButton"><span class="icon">🗑️</span> Clear Obstacles</button>
+            <div id="obstacleList" class="list-display">
+                <h4>Active Obstacles:</h4>
+                <ul></ul>
+            </div>
+        </div>
+    </div>
+    <script src="sketch.js"></script></body>
+</html>

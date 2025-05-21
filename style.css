@@ -1,0 +1,273 @@
+:root {
+    --bg-color: #1c1e22; /* Deep dark blue-gray */
+    --panel-bg-color: #282c34; /* Dark gray */
+    --panel-bg-gradient-start: #2f343c; /* Slightly Lighter for gradient */
+    --text-color: #abb2bf; /* Softer off-white */
+    --primary-accent-color: #61afef; /* Light blue */
+    --secondary-accent-color: #e06c75; /* Soft red */
+    --tertiary-accent-color: #98c379; /* Green for positive actions/highlights */
+    --border-color: #3c4048; /* Darker border */
+    --input-bg-color: #21252b; /* Dark input background */
+    --input-text-color: #abb2bf;
+    --button-bg-color: var(--primary-accent-color);
+    --button-text-color: #ffffff;
+    --button-hover-bg-color: #529bda;
+    --font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern sans-serif */
+    --code-font-family: 'Fira Code', 'Consolas', monospace;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&family=Fira+Code&display=swap');
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    font-size: 14px;
+    background-image: linear-gradient(45deg, rgba(255,255,255,0.02) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.02) 75%, transparent 75%, transparent);
+    background-size: 30px 30px;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: row;
+    width: 98vw;
+    max-width: 2000px;
+    margin-top: 1vh;
+    height: 98vh;
+    gap: 15px;
+}
+
+.main-content {
+    display: flex;
+    flex: 3.5; /* More space for dynamics + hic */
+    gap: 15px;
+    height: 100%;
+}
+
+.right-panel-stack {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 15px;
+    height: 100%;
+}
+
+.hic-map-subpanel {
+    flex: 2; /* Hi-C map takes more space */
+}
+.ps-plot-subpanel {
+    flex: 1; /* P(s) plot takes less space */
+}
+
+
+.canvas-container {
+    background-color: var(--panel-bg-color);
+    background-image: linear-gradient(to bottom, var(--panel-bg-gradient-start), var(--panel-bg-color));
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255,255,255,0.05);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+.panel-title {
+    text-align: center;
+    font-weight: 500;
+    font-size: 0.95em;
+    padding: 10px;
+    background-color: rgba(0,0,0,0.25);
+    border-bottom: 1px solid var(--border-color);
+    color: var(--primary-accent-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+#chromosome-canvas-container canvas,
+#hic-canvas-container canvas,
+#ps-plot-container canvas {
+    display: block;
+    width: 100% !important;
+    height: calc(100% - 41px) !important; /* Adjust based on panel-title height + padding */
+}
+
+.controls-container {
+    flex: 1.5; /* Slightly more space for controls */
+    background-color: var(--panel-bg-color);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    height: 100%;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-accent-color) var(--input-bg-color);
+}
+
+.controls-container h2, .controls-container h3 {
+    color: var(--primary-accent-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-top: 20px;
+    margin-bottom: 15px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+.controls-container h2:first-child { margin-top: 0; }
+.controls-container h3 { font-size: 1.1em; color: var(--tertiary-accent-color); margin-top: 25px;}
+
+
+.control-group {
+    margin-bottom: 18px;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 400;
+    font-size: 0.9em;
+}
+
+.control-group input[type="number"],
+.control-group input[type="text"],
+.control-group select {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--input-bg-color);
+    color: var(--input-text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-family: var(--code-font-family);
+    font-size: 0.95em;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.control-group input[type="number"]:focus,
+.control-group input[type="text"]:focus,
+.control-group select:focus {
+    outline: none;
+    border-color: var(--primary-accent-color);
+    box-shadow: 0 0 0 2px rgba(var(--primary-accent-color), 0.3);
+}
+
+.control-group input[type="range"] {
+    width: 100%;
+    accent-color: var(--primary-accent-color);
+    cursor: pointer;
+}
+
+.control-group span {
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 0.9em;
+    color: var(--text-color);
+    font-family: var(--code-font-family);
+    min-width: 40px; /* Ensure consistent alignment */
+}
+
+/* Specific styling for extruder static monomer inputs */
+.extruder-static-indices {
+    display: flex;
+    gap: 10px;
+}
+.extruder-static-indices > div {
+    flex: 1;
+}
+
+
+button {
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    margin-right: 8px;
+    margin-top: 8px;
+    font-size: 0.95em;
+}
+
+button:hover {
+    background-color: var(--button-hover-bg-color);
+    transform: translateY(-1px);
+}
+
+button:active {
+    transform: translateY(0px);
+    filter: brightness(0.95);
+}
+
+button .icon {
+    margin-right: 6px;
+    font-size: 1.1em;
+}
+
+#clearAnchorsButton, #clearObstaclesButton, #clearExtrudersButton {
+    background-color: var(--secondary-accent-color);
+}
+#clearAnchorsButton:hover, #clearObstaclesButton:hover, #clearExtrudersButton:hover {
+    background-color: #c75b65;
+}
+
+.list-display {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: rgba(0,0,0,0.1);
+    border-radius: 5px;
+}
+.list-display h4 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    color: var(--text-color);
+    font-weight: 500;
+}
+.list-display ul {
+    list-style-type: none;
+    padding-left: 0;
+    font-size: 0.85em;
+}
+.list-display li {
+    background-color: var(--input-bg-color);
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    line-height: 1.4;
+}
+.list-display li button {
+    padding: 3px 8px;
+    font-size: 0.9em;
+    margin: 0;
+    background-color: var(--secondary-accent-color);
+}
+.list-display li button:hover {
+    background-color: #c75b65;
+}
+
+.instruction {
+    font-size: 0.85em;
+    color: var(--tertiary-accent-color);
+    margin-bottom: 8px;
+    padding: 8px;
+    background-color: rgba(var(--tertiary-accent-color-rgb, 152, 195, 121), 0.1); /* Fallback for var */
+    border-radius: 4px;
+    border-left: 3px solid var(--tertiary-accent-color);
+}
+
+.hidden {
+    display: none !important;
+}
